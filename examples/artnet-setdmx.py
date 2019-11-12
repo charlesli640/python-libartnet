@@ -19,27 +19,34 @@ from __future__ import print_function
 
 import artnet
 from select import select
-from optparse import OptionParser
+import argparse
 
 def pairwise(iterable):
     a = iter(iterable)
     return zip(a, a)
 
-parser = OptionParser(usage="%prog [options] channel value [channel value [...]]")
-parser.add_option("-p", "--port", dest="port", default=0,
+parser = argparse.ArgumentParser(description="libartnet python wrapper example: setdmx")
+parser.add_argument("-p", "--port", type=int, dest="port", default=0,
                   help="Set port address")
-(opts, args) = parser.parse_args()
+parser.add_argument("-a", "--address", type=str, dest="ip", default="127.0.0.1",
+                  help="IP address the artnet interface")
+parser.add_argument(metavar='N', type=int, nargs='+', dest="channelvalues",
+                    help='channel-value pairs')
+args = parser.parse_args()
 
-if len(args) % 2:
+if len(args.channelvalues) % 2:
     parser.error("Channel and values should be specified in pairs")
 
-ac = artnet.Controller("pyartnet-setdmx")
-dp = artnet.port.DMX(opts.port, artnet.port.DMX.INPUT)
+print("DMX port = {}".format(args.port))
+ac = artnet.Controller(b"pyartnet-setdmx", ip=args.ip, verbose=1)
+# input data (DMX -> ArtNet) or output (ArtNet -> DMX) data
+dp = artnet.port.DMX(int(args.port), artnet.port.DMX.INPUT)
 ac.add_port(dp)
 
-print("Using port {}".format(dp))
+print("setdmx: Using port {}".format(dp))
 
-for channel, value in pairwise(args):
-    dp.set(int(channel), int(value))
-    print("Channel " + channel + ", set to " + value)
+for channel, value in pairwise(args.channelvalues):
+    print("channel={} value={}".format(channel, value))
+    dp.set(channel, value)
+    print("Channel {}, set to {}".format(channel, value))
 dp.send()

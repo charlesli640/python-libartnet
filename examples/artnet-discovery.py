@@ -19,25 +19,33 @@ from __future__ import print_function
 
 import artnet
 from select import select
-from optparse import OptionParser
+import argparse
 from time import time
 
-parser = OptionParser(usage="%prog [options]")
-parser.add_option("-t", dest="timeout", default=3,
-                  help="Discovery timeout")
-(opts, args) = parser.parse_args()
+print("Start...")
+parser = argparse.ArgumentParser(description="libartnet python wrapper example: discovery")
+parser.add_argument('-t', dest='timeout', type=int, default=3, help="Discovery timeout")
+parser.add_argument("-a", dest="ip", type=str, default="127.0.0.1", help="IP address the artnet interface")
+parser.add_argument("-v", dest="verbose", type=int, default=0, help="verbose")
+args = parser.parse_args()
 
-ac = artnet.Controller("pyartnet-discover")
+print("timeout={}".format(args.timeout))
+print("ip={}".format(args.ip))
+
+ac = artnet.Controller(b"pyartnet-discover", ip=args.ip, verbose=args.verbose)
+
 ac.discover()
 
 start = time()
-while (time() - start) < int(opts.timeout):
-	readable, writeable, exception = select([ac], [], [], 1)
-	if len(readable) > 0:
-		ac.run()
+while (time() - start) < int(args.timeout):
+    if args.verbose:
+        print("timeout={} ac={}".format(args.timeout, ac))
+    readable, writeable, exception = select([ac], [], [], 1)
+    if len(readable) > 0:
+        ac.run()
 
 for node in ac.nodes():
-	print("IP: " + node.ip + " (" + node.mac + ")")
-	print("Name: " + str(node.name) + ", version: " + str(node.version))
-	print("Subnet: " + str(node.subnet))
-	print("Ports: " + str(node.ports))
+    print("IP: {} Mac: {}".format(node.ip, node.mac))
+    print("Name: {} Version: {}".format(node.name.decode('utf-8'), node.version))
+    print("Subnet: {}".format(node.subnet))
+    print("Ports: {}".format(node.ports))

@@ -92,19 +92,19 @@ class Nodes(object):
         return libartnet.artnet_nl_get_length(self._nl)
 
     def __iter__(self):
-        self._entry = 0
+        self._entry = None
         return self
 
     def next(self):
         return self.__next__()
 
     def __next__(self):
-        if self._entry == 0:
+        if self._entry == None:
             self._entry = libartnet.artnet_nl_first(self._nl)
         else:
             self._entry = libartnet.artnet_nl_next(self._nl)
 
-        if self._entry != 0:
+        if self._entry != None:
             c_ne_p = POINTER(NodeEntry)
             nodeentry = cast(self._entry, c_ne_p).contents
             return Node(nodeentry)

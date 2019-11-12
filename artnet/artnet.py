@@ -26,13 +26,20 @@ class Artnet(object):
 
     _num_ports = 0
 
-    def __init__(self, type=SRV, ip=None):
+    def __init__(self, type_=SRV, ip=None, verbose=0):
         if not libartnet:
-            raise OSError("Unable to load libartnet.so")
+            raise OSError("Unable to load libartnet")
 
         self._ip = ip
-        self._node = libartnet.artnet_new(ip, 0)
-        self.type = type
+        self._verbose = int(verbose)
+        if self._verbose:
+            print("libartnet.artnet_new ip = {} type(ip)={}".format(ip, type(ip)))
+        self._node = libartnet.artnet_new(bytes(bytearray(ip, 'utf-8')), self._verbose)
+        if self._node == None:
+            print("Create Node failed! return NULL")
+        if self._verbose:
+            print("Node IP={} self._node value={:x} type={}".format(ip, self._node, type_))
+        self.type = type_
         self.subnet = 0
         self._CHANDLER = \
             CFUNCTYPE(c_int, c_void_p, c_void_p, c_void_p)
@@ -57,7 +64,13 @@ class Artnet(object):
         ret = libartnet.artnet_read(self._node, timeout)
 
     def fileno(self):
-        return libartnet.artnet_get_sd(self._node)
+        if self._node == None:
+            print("NULL node")
+            return -1
+        ret = libartnet.artnet_get_sd(self._node)
+        if self._verbose:
+            print("fileno={}".format(ret))
+        return ret
 
     TTM_DEFAULT = 0xFF
     TTM_PRIVATE = 0xFE
@@ -73,14 +86,18 @@ class Artnet(object):
     @property
     def type(self):
         return self._type
+
     @type.setter
     def type(self, value):
         self._type = value
+        if self._verbose:
+            print("set nodetype: node = {} type={}".format(self._node, value))
         libartnet.artnet_set_node_type(self._node, value)
 
     @property
     def name(self):
         return self._name
+
     @name.setter
     def name(self, value):
         self._name = value
@@ -89,6 +106,7 @@ class Artnet(object):
     @property
     def long_name(self):
         return self._name
+
     @long_name.setter
     def long_name(self, value):
         self._name = value
@@ -155,7 +173,8 @@ class Artnet(object):
             direction = self.INPUT_PORT
         else:
             direction = self.OUTPUT_PORT
-
+        if self._verbose:
+            print("libartnet.artnet_set_port_addr id = {} addr = {}".format(id, prt.address))
         libartnet.artnet_set_port_addr(self._node, id, direction, \
             prt.address)
 
@@ -168,8 +187,8 @@ class Artnet(object):
 
 class Controller(Artnet):
 
-    def __init__(self, name = 'py-artnet', long_name = ''):
-        super(Controller, self).__init__(Artnet.SRV)
+    def __init__(self, name = b"py-artnet", long_name = b"", ip=None, verbose=0):
+        super(Controller, self).__init__(Artnet.SRV, ip, verbose)
         self.name = name
         self.long_name = long_name
         self.set_handler(self.HANDLER_POLL, self._handler_poll)
