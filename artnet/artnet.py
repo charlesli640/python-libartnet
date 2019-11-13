@@ -38,7 +38,7 @@ class Artnet(object):
         if self._node == None:
             print("Create Node failed! return NULL")
         if self._verbose:
-            print("Node IP={} self._node value={:x} type={}".format(ip, self._node, type_))
+            print("Node IP={} self._node value={} type={}".format(ip, self._node, type_))
         self.type = type_
         self.subnet = 0
         self._CHANDLER = \

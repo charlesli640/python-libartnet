@@ -23,7 +23,10 @@ import traceback
 libartnet = None
 try:
     libname="libartnet.so"
-    if sys.platform.startswith("win"):
+    if sys.platform.startswith("darwin"):
+        libname = "libartnet.dylib"
+        print("load Mac dylib: {}".format(libname))
+    elif sys.platform.startswith("win"):
         libname = "libartnet.dll"
         print("load Windows dll: {}".format(libname))
     libartnet = CDLL(libname)
