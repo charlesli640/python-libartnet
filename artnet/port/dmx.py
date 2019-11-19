@@ -31,10 +31,15 @@ class DMX(Port):
 
     def set(self, channel, value):
         if channel >= 1 and channel <= 512:
-            print("set channel={} value={}".format(channel, value))
+            # print("set channel={} value={}".format(channel, value))
             self._channels[channel - 1] = int(value) % 256
-            print("set channels={}".format(repr(self._channels)))
+            # print("set channels={}".format(repr(self._channels)))
 
+    def set_universe(self, data):
+        al = len(data)
+        if al > 512:
+            al = 512
+        self._channels[0:al] = data[0:al]
 
     @property
     def channels(self):
@@ -47,5 +52,5 @@ class DMX(Port):
     def send(self):
         data = self.data
         char_array = create_string_buffer(bytes(data), len(data))
-        print("before send id={} addr={} len(data)={} data={} data[0]={} char_array[0]={}".format(self._id, self.address, len(data), repr(data), data[0], char_array[0]))
+        # print("before send id={} addr={} len(data)={} data={} data[0]={} char_array[0]={}".format(self._id, self.address, len(data), repr(data), data[0], char_array[0]))
         libartnet.artnet_send_dmx(self._artnet.handle, self._id, len(data), char_array)

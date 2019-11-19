@@ -22,13 +22,14 @@ import traceback
 
 libartnet = None
 try:
+    # by default, Linux
     libname="libartnet.so"
     if sys.platform.startswith("darwin"):
         libname = "libartnet.dylib"
-        print("load Mac dylib: {}".format(libname))
+        # print("load Mac dylib: {}".format(libname))
     elif sys.platform.startswith("win"):
         libname = "libartnet.dll"
-        print("load Windows dll: {}".format(libname))
+        # print("load Windows dll: {}".format(libname))
     libartnet = CDLL(libname)
     libartnet.artnet_new.restype = c_void_p
     libartnet.artnet_new.argtypes = [c_char_p, c_int]

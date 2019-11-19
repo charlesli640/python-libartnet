@@ -46,6 +46,6 @@ while (time() - start) < int(args.timeout):
 
 for node in ac.nodes():
     print("IP: {} Mac: {}".format(node.ip, node.mac))
-    print("Name: {} Version: {}".format(node.name.decode('utf-8'), node.version))
+    print("Name: {}\nVersion: {}".format(node.name.decode('utf-8'), node.version))
     print("Subnet: {}".format(node.subnet))
     print("Ports: {}".format(node.ports))
