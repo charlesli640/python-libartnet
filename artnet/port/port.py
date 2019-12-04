@@ -43,7 +43,7 @@ class Port(object):
     _artnet = None
 
     def __init__(self, address = 0, direction = INPUT):
-        print("addess={:d}".format(address))
+        # print("address={:d}".format(address))
         if address < 0 or address >= 16:
             raise IndexError("Invalid port address {}".format(address))
         self._address = address
