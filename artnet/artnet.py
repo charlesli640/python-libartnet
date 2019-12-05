@@ -163,6 +163,9 @@ class Artnet(object):
     OUTPUT_PORT = 2
 
     def add_port(self, prt):
+        if self._num_ports >= 4:
+            print("Failed to add port: port number exceeds 4!")
+            return None
         id = self._num_ports
         self._num_ports = self._num_ports + 1
 
